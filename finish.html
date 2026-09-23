@@ -50,7 +50,7 @@ h1 {
 }
 
 .card {
-  margin-top: 55px;
+  margin-top: 45px;
   padding: 38px 32px;
   border: 1px solid #70583a;
   border-radius: 24px;
@@ -77,40 +77,56 @@ h1 {
 
 .big-text {
   margin: 25px 0;
-  font-size: 22px;
+  font-size: 21px;
   line-height: 1.6;
   font-weight: 700;
 }
 
-.code-description {
-  margin-top: 30px;
-  margin-bottom: 12px;
-  color: #cbbda9;
-  font-size: 15px;
+.field {
+  text-align: left;
+  margin-top: 22px;
 }
 
-.code-input {
+.field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #cbbda9;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.input {
   width: 100%;
-  padding: 18px 15px;
-  border-radius: 14px;
-  border: 1px solid #8a6b43;
+  padding: 16px;
+  border-radius: 13px;
+  border: 1px solid #806440;
   background: #1a120d;
   color: #f4d38e;
-  text-align: center;
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: 10px;
+  font-size: 18px;
   outline: none;
 }
 
-.code-input:focus {
+.input:focus {
   border-color: #d5a855;
   box-shadow: 0 0 0 2px rgba(213,168,85,0.15);
 }
 
+.code-input {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 8px;
+}
+
+.time-input {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+}
+
 .button {
   width: 100%;
-  margin-top: 22px;
+  margin-top: 28px;
   padding: 17px;
   border: 1px solid #a47b3d;
   border-radius: 13px;
@@ -176,8 +192,38 @@ h1 {
 .result-text {
   margin-top: 18px;
   font-size: 18px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: #e8dccb;
+}
+
+.result-data {
+  margin-top: 25px;
+  padding: 18px;
+  border: 1px solid #6e5639;
+  border-radius: 15px;
+  background: rgba(20, 13, 9, 0.45);
+  text-align: left;
+}
+
+.result-row {
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(130,100,65,0.3);
+}
+
+.result-row:last-child {
+  border-bottom: none;
+}
+
+.result-label {
+  color: #9e8b75;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.result-value {
+  color: #f1d18d;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .retry {
@@ -207,12 +253,12 @@ h1 {
   }
 
   .big-text {
-    font-size: 20px;
+    font-size: 19px;
   }
 
   .code-input {
-    font-size: 25px;
-    letter-spacing: 7px;
+    font-size: 24px;
+    letter-spacing: 6px;
   }
 }
 </style>
@@ -224,14 +270,17 @@ h1 {
 
   <div class="symbol">⚔️</div>
 
-  <h1>ФЕСТИВАЛЬ ГОРОДОВОГО<br>КОЗАЦТВА</h1>
+  <h1>
+    ФЕСТИВАЛЬ ГОРОДОВОГО<br>
+    КОЗАЦТВА
+  </h1>
 
   <div class="subtitle">
     цифровий квест
   </div>
 
 
-  <!-- ПОЧАТОК -->
+  <!-- ФІНАЛЬНА ФОРМА -->
 
   <div class="card" id="startScreen">
 
@@ -249,25 +298,69 @@ h1 {
       1 код.
     </div>
 
-    <div class="code-description">
-      Введіть код, який ви зібрали.
+
+    <!-- НАЗВА КОМАНДИ -->
+
+    <div class="field">
+
+      <label for="teamInput">
+        Назва команди
+      </label>
+
+      <input
+        id="teamInput"
+        class="input"
+        type="text"
+        placeholder="Введіть назву команди"
+        autocomplete="off"
+      >
+
     </div>
 
-    <input
-      id="codeInput"
-      class="code-input"
-      type="tel"
-      inputmode="numeric"
-      maxlength="7"
-      autocomplete="off"
-      placeholder="_______"
-    >
+
+    <!-- ФІНАЛЬНИЙ КОД -->
+
+    <div class="field">
+
+      <label for="codeInput">
+        Фінальний код
+      </label>
+
+      <input
+        id="codeInput"
+        class="input code-input"
+        type="tel"
+        inputmode="numeric"
+        maxlength="7"
+        placeholder="_______"
+        autocomplete="off"
+      >
+
+    </div>
+
+
+    <!-- ЧАС -->
+
+    <div class="field">
+
+      <label for="timeInput">
+        Час фінішу
+      </label>
+
+      <input
+        id="timeInput"
+        class="input time-input"
+        type="time"
+      >
+
+    </div>
+
 
     <button
       id="activateButton"
       class="button"
     >
-      АКТИВУВАТИ КОД
+      ЗАВЕРШИТИ КВЕСТ
     </button>
 
   </div>
@@ -286,18 +379,22 @@ h1 {
     </div>
 
     <div class="loader">
-      <div class="loader-bar" id="loaderBar"></div>
+      <div
+        class="loader-bar"
+        id="loaderBar">
+      </div>
     </div>
 
-    <div class="progress" id="progress">
+    <div
+      class="progress"
+      id="progress">
       ░░░░░░░░░░░░ 0%
     </div>
 
     <div
       class="text"
       id="checkingMessage"
-      style="margin-top:25px;"
-    >
+      style="margin-top:25px;">
       Аналіз фінального коду…
     </div>
 
@@ -310,33 +407,77 @@ h1 {
 
     <div
       class="result-symbol"
-      id="resultSymbol"
-    >
+      id="resultSymbol">
       ◈
     </div>
 
     <div
       class="result-title"
-      id="resultTitle"
-    >
-      КОД АКТИВОВАНО
+      id="resultTitle">
+      КВЕСТ ЗАВЕРШЕНО
     </div>
 
     <div
       class="result-text"
-      id="resultText"
-    >
-      Ви успішно завершили козацький квест.
+      id="resultText">
     </div>
+
+    <div
+      class="result-data hidden"
+      id="resultData">
+
+      <div class="result-row">
+
+        <div class="result-label">
+          КОМАНДА
+        </div>
+
+        <div
+          class="result-value"
+          id="resultTeam">
+        </div>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <div class="result-label">
+          ФІНАЛЬНИЙ КОД
+        </div>
+
+        <div
+          class="result-value"
+          id="resultCode">
+        </div>
+
+      </div>
+
+
+      <div class="result-row">
+
+        <div class="result-label">
+          ЧАС ФІНІШУ
+        </div>
+
+        <div
+          class="result-value"
+          id="resultTime">
+        </div>
+
+      </div>
+
+    </div>
+
 
     <button
       class="button retry hidden"
-      id="retryButton"
-    >
+      id="retryButton">
       СПРОБУВАТИ ЩЕ РАЗ
     </button>
 
   </div>
+
 
   <div class="footer">
     ФІНАЛЬНА СТАНЦІЯ
@@ -347,7 +488,16 @@ h1 {
 
 <script>
 
+/* =========================================
+   ЄДИНИЙ ФІНАЛЬНИЙ КОД
+========================================= */
+
 const FINAL_CODE = "0110149";
+
+
+/* =========================================
+   ЕЛЕМЕНТИ
+========================================= */
 
 const startScreen =
   document.getElementById("startScreen");
@@ -358,8 +508,14 @@ const checkingScreen =
 const resultScreen =
   document.getElementById("resultScreen");
 
+const teamInput =
+  document.getElementById("teamInput");
+
 const codeInput =
   document.getElementById("codeInput");
+
+const timeInput =
+  document.getElementById("timeInput");
 
 const activateButton =
   document.getElementById("activateButton");
@@ -382,25 +538,42 @@ const resultTitle =
 const resultText =
   document.getElementById("resultText");
 
+const resultData =
+  document.getElementById("resultData");
+
+const resultTeam =
+  document.getElementById("resultTeam");
+
+const resultCode =
+  document.getElementById("resultCode");
+
+const resultTime =
+  document.getElementById("resultTime");
+
 const retryButton =
   document.getElementById("retryButton");
 
 
+/* =========================================
+   ТІЛЬКИ ЦИФРИ В ПОЛІ КОДУ
+========================================= */
 
-/* Тільки цифри */
+codeInput.addEventListener(
+  "input",
+  function() {
 
-codeInput.addEventListener("input", function() {
+    this.value =
+      this.value
+        .replace(/\D/g, "")
+        .slice(0, 7);
 
-  this.value =
-    this.value
-      .replace(/\D/g, "")
-      .slice(0, 7);
-
-});
-
+  }
+);
 
 
-/* Натискання кнопки */
+/* =========================================
+   КНОПКА
+========================================= */
 
 activateButton.addEventListener(
   "click",
@@ -408,55 +581,94 @@ activateButton.addEventListener(
 );
 
 
-
-/* Enter */
-
-codeInput.addEventListener(
-  "keydown",
-  function(event) {
-
-    if (event.key === "Enter") {
-      startVerification();
-    }
-
-  }
-);
-
-
+/* =========================================
+   ПЕРЕВІРКА ПОЛІВ
+========================================= */
 
 function startVerification() {
 
-  const code =
-    codeInput.value;
+  const team =
+    teamInput.value.trim();
 
-  if (code.length !== 7) {
+  const code =
+    codeInput.value.trim();
+
+  const time =
+    timeInput.value;
+
+
+  if (!team) {
 
     alert(
-      "Введіть код із 7 цифр."
+      "Введіть назву команди."
     );
+
+    teamInput.focus();
 
     return;
   }
 
 
-  startScreen.classList.add("hidden");
+  if (code.length !== 7) {
 
-  checkingScreen.classList.remove("hidden");
+    alert(
+      "Введіть фінальний код із 7 цифр."
+    );
 
-  animateChecking();
+    codeInput.focus();
+
+    return;
+  }
+
+
+  if (!time) {
+
+    alert(
+      "Введіть час фінішу."
+    );
+
+    timeInput.focus();
+
+    return;
+  }
+
+
+  startScreen.classList.add(
+    "hidden"
+  );
+
+  checkingScreen.classList.remove(
+    "hidden"
+  );
+
+
+  animateChecking(
+    team,
+    code,
+    time
+  );
 
 }
 
 
+/* =========================================
+   АНІМАЦІЯ
+========================================= */
 
-function animateChecking() {
+function animateChecking(
+  team,
+  code,
+  time
+) {
 
   let value = 0;
+
 
   const interval =
     setInterval(function() {
 
       value += 4;
+
 
       if (value >= 100) {
 
@@ -473,10 +685,16 @@ function animateChecking() {
         checkingMessage.textContent =
           "Формування вердикту…";
 
-        setTimeout(
-          checkCode,
-          500
-        );
+
+        setTimeout(function() {
+
+          checkCode(
+            team,
+            code,
+            time
+          );
+
+        }, 500);
 
         return;
       }
@@ -523,19 +741,27 @@ function animateChecking() {
 }
 
 
+/* =========================================
+   ПЕРЕВІРКА КОДУ
+========================================= */
 
-function checkCode() {
+function checkCode(
+  team,
+  code,
+  time
+) {
 
-  const enteredCode =
-    codeInput.value;
+  checkingScreen.classList.add(
+    "hidden"
+  );
+
+  resultScreen.classList.remove(
+    "hidden"
+  );
 
 
-  checkingScreen.classList.add("hidden");
+  if (code === FINAL_CODE) {
 
-  resultScreen.classList.remove("hidden");
-
-
-  if (enteredCode === FINAL_CODE) {
 
     /* ПРАВИЛЬНИЙ КОД */
 
@@ -543,12 +769,26 @@ function checkCode() {
       "⚔️";
 
     resultTitle.textContent =
-      "КОД АКТИВОВАНО";
+      "КВЕСТ ЗАВЕРШЕНО";
+
 
     resultText.innerHTML =
-      "Ви успішно завершили<br>" +
-      "<strong>козацький квест!</strong><br><br>" +
-      "Вітаємо! Ви пройшли всі випробування.";
+      "Ви успішно пройшли всі випробування.<br><br>" +
+      "<strong>Вітаємо, козацька командо!</strong>";
+
+
+    resultTeam.textContent =
+      team;
+
+    resultCode.textContent =
+      code;
+
+    resultTime.textContent =
+      time;
+
+    resultData.classList.remove(
+      "hidden"
+    );
 
     retryButton.classList.add(
       "hidden"
@@ -556,6 +796,7 @@ function checkCode() {
 
 
   } else {
+
 
     /* НЕПРАВИЛЬНИЙ КОД */
 
@@ -565,8 +806,15 @@ function checkCode() {
     resultTitle.textContent =
       "КОД НЕПРАВИЛЬНИЙ";
 
+
     resultText.textContent =
       "Перевірте 7 цифр, які ви зібрали під час випробувань.";
+
+
+    resultData.classList.add(
+      "hidden"
+    );
+
 
     retryButton.classList.remove(
       "hidden"
@@ -577,8 +825,9 @@ function checkCode() {
 }
 
 
-
-/* Повторна спроба */
+/* =========================================
+   ПОВТОРНА СПРОБА
+========================================= */
 
 retryButton.addEventListener(
   "click",
@@ -592,6 +841,7 @@ retryButton.addEventListener(
       "hidden"
     );
 
+
     codeInput.value = "";
 
     loaderBar.style.width =
@@ -599,6 +849,9 @@ retryButton.addEventListener(
 
     progress.textContent =
       "░░░░░░░░░░░░ 0%";
+
+    checkingMessage.textContent =
+      "Аналіз фінального коду…";
 
   }
 );
