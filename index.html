@@ -223,18 +223,15 @@
 
   <script>
 
-    // Адреса нашого Google Apps Script
     const API_URL =
       "https://script.google.com/macros/s/AKfycbx_crjSExgQSenmb_RObkRnmbOt_8J7xZnD90jhXWiS_hMCWeKRq7bntrh2ksaqKEf69w/exec";
 
 
-    // Отримуємо QR команди з адреси сторінки
-    // Наприклад: ?qr=QR01
     const params = new URLSearchParams(window.location.search);
     const qr = params.get("qr");
 
 
-    // Назви станцій
+    // Усі станції
     const stations = [
       "Станція 1",
       "Станція 2",
@@ -246,18 +243,39 @@
     ];
 
 
-    // Завантаження даних
+    // Формуємо порядок станцій для кожної команди
+    function getStationOrder() {
+
+      // QR01 → початок з 1
+      // QR02 → початок з 2
+      // QR03 → початок з 3
+      // ...
+      // QR07 → початок з 7
+
+      const teamNumber = parseInt(qr.replace("QR", ""), 10);
+
+      const startIndex = teamNumber - 1;
+
+      return [
+        ...stations.slice(startIndex),
+        ...stations.slice(0, startIndex)
+      ];
+    }
+
+
     async function loadTeam() {
 
       const content = document.getElementById("content");
 
       if (!qr) {
+
         content.innerHTML = `
           <div class="error">
             <h2>Команду не знайдено</h2>
             <p>Відскануйте QR-код своєї команди.</p>
           </div>
         `;
+
         return;
       }
 
@@ -272,35 +290,50 @@
 
 
         if (data.error) {
+
           content.innerHTML = `
             <div class="error">
               <h2>Помилка</h2>
               <p>${data.error}</p>
             </div>
           `;
+
           return;
         }
+
+
+        // Отримуємо правильний порядок станцій
+        const orderedStations = getStationOrder();
 
 
         let stationsHTML = "";
 
 
-        stations.forEach((station, index) => {
+        orderedStations.forEach((station) => {
 
           const value = data.stations[station];
 
           const displayValue =
-            value === "" || value === null || value === undefined
+            value === "" ||
+            value === null ||
+            value === undefined
               ? "—"
               : value + " б.";
 
+
+          // Номер справжньої станції
+          const stationNumber =
+            station.replace("Станція ", "");
+
+
           stationsHTML += `
+
             <div class="station">
 
               <div class="station-left">
 
                 <div class="station-number">
-                  ${index + 1}
+                  ${stationNumber}
                 </div>
 
                 <div class="station-name">
@@ -314,6 +347,7 @@
               </div>
 
             </div>
+
           `;
 
         });
@@ -331,11 +365,9 @@
               ${data.team}
             </div>
 
-
             <div class="stations">
               ${stationsHTML}
             </div>
-
 
             <div class="total">
 
@@ -350,7 +382,6 @@
 
             </div>
 
-
             <div class="updated">
               Результати оновлюються автоматично
             </div>
@@ -361,18 +392,26 @@
 
       }
 
+
       catch (error) {
 
         console.error(error);
 
         content.innerHTML = `
+
           <div class="error">
-            <h2>Не вдалося завантажити результати</h2>
+
+            <h2>
+              Не вдалося завантажити результати
+            </h2>
+
             <p>
               Перевірте підключення до інтернету
               та спробуйте оновити сторінку.
             </p>
+
           </div>
+
         `;
 
       }
@@ -380,12 +419,10 @@
     }
 
 
-    // Перше завантаження
     loadTeam();
 
 
-    // Автоматично перевіряємо нові результати
-    // кожні 15 секунд
+    // Оновлення кожні 15 секунд
     setInterval(loadTeam, 15000);
 
   </script>
