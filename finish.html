@@ -1,1191 +1,609 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Фінальний протокол</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-
-      background:
-        radial-gradient(
-          circle at top,
-          #3d2b1f 0%,
-          #17110d 48%,
-          #090706 100%
-        );
-
-      color: #f5ead8;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      padding: 20px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 520px;
-    }
-
-    .card {
-      background: rgba(255, 248, 235, 0.07);
-
-      border: 1px solid rgba(222, 183, 119, 0.35);
-
-      border-radius: 26px;
-
-      padding: 34px 24px;
-
-      box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.45);
-
-      backdrop-filter: blur(10px);
-
-      text-align: center;
-    }
-
-    .symbol {
-      font-size: 42px;
-      margin-bottom: 20px;
-    }
-
-    .title {
-      font-size: 24px;
-      font-weight: 800;
-
-      letter-spacing: 2px;
-
-      color: #e2b66d;
-
-      margin-bottom: 28px;
-    }
-
-    .intro {
-      color: #d7c8b5;
-
-      font-size: 16px;
-
-      line-height: 1.65;
-
-      margin-bottom: 8px;
-    }
-
-    .formula {
-      margin-top: 18px;
-      margin-bottom: 28px;
-    }
-
-    .formula div {
-      font-size: 18px;
-
-      font-weight: 700;
-
-      color: #e8bd72;
-
-      margin: 5px 0;
-    }
-
-    .description {
-      color: #b8a994;
-
-      font-size: 14px;
-
-      margin-top: 18px;
-
-      margin-bottom: 25px;
-    }
-
-    .team-label {
-      display: block;
-
-      text-align: left;
-
-      font-size: 12px;
-
-      text-transform: uppercase;
-
-      letter-spacing: 2px;
-
-      color: #a99a88;
-
-      margin-bottom: 8px;
-    }
-
-    select,
-    input {
-      width: 100%;
-
-      border: 1px solid rgba(222, 183, 119, 0.35);
-
-      border-radius: 14px;
-
-      background: rgba(0, 0, 0, 0.25);
-
-      color: #f5ead8;
-
-      padding: 15px;
-
-      font-size: 17px;
-
-      outline: none;
-
-      margin-bottom: 18px;
-    }
-
-    select:focus,
-    input:focus {
-      border-color: #e2b66d;
-    }
-
-    input {
-      text-align: center;
-
-      font-size: 26px;
-
-      letter-spacing: 9px;
-
-      font-weight: 700;
-    }
-
-    input::placeholder {
-      color: #706356;
-
-      letter-spacing: 8px;
-    }
-
-    button {
-      width: 100%;
-
-      border: none;
-
-      border-radius: 14px;
-
-      padding: 16px;
-
-      background: #b88642;
-
-      color: #17110d;
-
-      font-size: 15px;
-
-      font-weight: 900;
-
-      letter-spacing: 1px;
-
-      cursor: pointer;
-
-      transition: 0.2s;
-    }
-
-    button:hover {
-      background: #d5a95f;
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* =========================
-       ПЕРЕВІРКА
-    ========================= */
-
-    .checking {
-      text-align: center;
-    }
-
-    .loader {
-      width: 64px;
-      height: 64px;
-
-      border-radius: 50%;
-
-      border: 4px solid rgba(222, 183, 119, 0.2);
-
-      border-top-color: #e2b66d;
-
-      animation:
-        spin 0.9s linear infinite;
-
-      margin: 0 auto 25px;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .checking-title {
-      color: #e2b66d;
-
-      font-size: 20px;
-
-      font-weight: 800;
-
-      letter-spacing: 1px;
-
-      margin-bottom: 20px;
-    }
-
-    .progress {
-      width: 100%;
-
-      height: 16px;
-
-      border-radius: 20px;
-
-      background: rgba(255,255,255,0.08);
-
-      overflow: hidden;
-
-      border: 1px solid rgba(222,183,119,0.2);
-    }
-
-    .progress-bar {
-      width: 0%;
-
-      height: 100%;
-
-      background: #e2b66d;
-
-      transition:
-        width 0.15s linear;
-    }
-
-    .progress-text {
-      margin-top: 10px;
-
-      font-family: monospace;
-
-      color: #cbb99f;
-
-      font-size: 15px;
-
-      letter-spacing: 1px;
-    }
-
-    .checking-message {
-      margin-top: 18px;
-
-      color: #8e806e;
-
-      font-size: 13px;
-    }
-
-    /* =========================
-       РЕЗУЛЬТАТ
-    ========================= */
-
-    .result-symbol {
-      font-size: 55px;
-
-      margin-bottom: 20px;
-    }
-
-    .result-title {
-      font-size: 26px;
-
-      font-weight: 900;
-
-      color: #e2b66d;
-
-      letter-spacing: 1px;
-
-      margin-bottom: 18px;
-    }
-
-    .result-message {
-      color: #d7c8b5;
-
-      font-size: 16px;
-
-      line-height: 1.6;
-    }
-
-    .time-box {
-      margin-top: 28px;
-
-      padding: 20px;
-
-      border-radius: 18px;
-
-      background: rgba(0,0,0,0.22);
-
-      border: 1px solid rgba(222,183,119,0.2);
-    }
-
-    .time-label {
-      color: #9f9180;
-
-      font-size: 11px;
-
-      letter-spacing: 2px;
-
-      margin-bottom: 8px;
-    }
-
-    .time {
-      color: #e8bd72;
-
-      font-size: 34px;
-
-      font-weight: 900;
-
-      letter-spacing: 2px;
-    }
-
-    .winner {
-      margin-top: 30px;
-
-      padding: 18px;
-
-      border-radius: 16px;
-
-      background: rgba(184, 134, 66, 0.16);
-
-      border:
-        1px solid
-        rgba(222,183,119,0.4);
-
-      color: #e8bd72;
-
-      font-size: 21px;
-
-      font-weight: 900;
-    }
-
-    .gift {
-      margin-top: 15px;
-
-      color: #cbb99f;
-
-      font-size: 12px;
-
-      letter-spacing: 2px;
-    }
-
-    .retry {
-      margin-top: 28px;
-
-      background: transparent;
-
-      border:
-        1px solid
-        rgba(222,183,119,0.4);
-
-      color: #e2b66d;
-    }
-
-    .retry:hover {
-      background: rgba(222,183,119,0.08);
-    }
-
-    .footer {
-      margin-top: 22px;
-
-      color: #665b50;
-
-      font-size: 11px;
-
-      text-align: center;
-    }
-
-    @media (max-width: 400px) {
-
-      body {
-        padding: 12px;
-      }
-
-      .card {
-        padding: 28px 18px;
-      }
-
-      .title {
-        font-size: 21px;
-      }
-
-      input {
-        font-size: 23px;
-      }
-
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Фінал — Фестиваль городового козацтва</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 20%, #382719 0%, #17100c 45%, #0d0907 100%);
+  color: #f5ead7;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 25px;
+}
+
+.container {
+  width: 100%;
+  max-width: 560px;
+  text-align: center;
+}
+
+.symbol {
+  font-size: 42px;
+  margin-bottom: 18px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+.subtitle {
+  margin-top: 10px;
+  color: #cbbda9;
+  font-size: 16px;
+}
+
+.card {
+  margin-top: 55px;
+  padding: 38px 32px;
+  border: 1px solid #70583a;
+  border-radius: 24px;
+  background: rgba(55, 42, 31, 0.72);
+  box-shadow: 0 20px 70px rgba(0,0,0,0.45);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.protocol {
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: #d9b36b;
+  margin-bottom: 28px;
+}
+
+.text {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #eadfce;
+}
+
+.big-text {
+  margin: 25px 0;
+  font-size: 22px;
+  line-height: 1.6;
+  font-weight: 700;
+}
+
+.code-description {
+  margin-top: 30px;
+  margin-bottom: 12px;
+  color: #cbbda9;
+  font-size: 15px;
+}
+
+.code-input {
+  width: 100%;
+  padding: 18px 15px;
+  border-radius: 14px;
+  border: 1px solid #8a6b43;
+  background: #1a120d;
+  color: #f4d38e;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 10px;
+  outline: none;
+}
+
+.code-input:focus {
+  border-color: #d5a855;
+  box-shadow: 0 0 0 2px rgba(213,168,85,0.15);
+}
+
+.button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 17px;
+  border: 1px solid #a47b3d;
+  border-radius: 13px;
+  background: #332416;
+  color: #e7bd6d;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.button:hover {
+  background: #45301c;
+  border-color: #d2a454;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.checking-title {
+  color: #e7bd6d;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.loader {
+  margin: 30px 0 15px;
+  height: 7px;
+  background: #1a120d;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.loader-bar {
+  width: 0%;
+  height: 100%;
+  background: #d5a855;
+  transition: width 0.08s linear;
+}
+
+.progress {
+  font-family: monospace;
+  color: #d5a855;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.result-symbol {
+  font-size: 55px;
+  margin-bottom: 15px;
+}
+
+.result-title {
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #e7bd6d;
+}
+
+.result-text {
+  margin-top: 18px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #e8dccb;
+}
+
+.retry {
+  margin-top: 25px;
+}
+
+.footer {
+  margin-top: 22px;
+  font-size: 12px;
+  color: #756758;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 600px) {
+
+  body {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 23px;
+  }
+
+  .card {
+    margin-top: 35px;
+    padding: 30px 22px;
+  }
+
+  .big-text {
+    font-size: 20px;
+  }
+
+  .code-input {
+    font-size: 25px;
+    letter-spacing: 7px;
+  }
+}
+</style>
 </head>
-
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <!-- =========================
-         ПОЧАТКОВИЙ ЕКРАН
-    ========================== -->
+  <div class="symbol">⚔️</div>
 
-    <div id="startScreen" class="card">
+  <h1>ФЕСТИВАЛЬ ГОРОДОВОГО<br>КОЗАЦТВА</h1>
 
-      <div class="symbol">
-        ⚔️
-      </div>
+  <div class="subtitle">
+    цифровий квест
+  </div>
 
-      <div class="title">
-        ◈ ФІНАЛЬНИЙ ПРОТОКОЛ ◈
-      </div>
 
-      <div class="intro">
-        Ви пройшли всі випробування.
-      </div>
+  <!-- ПОЧАТОК -->
 
-      <div class="formula">
+  <div class="card" id="startScreen">
 
-        <div>
-          7 випробувань.
-        </div>
-
-        <div>
-          7 цифр.
-        </div>
-
-        <div>
-          1 код.
-        </div>
-
-      </div>
-
-      <div class="description">
-        Введіть код, який ви зібрали
-        під час проходження квесту.
-      </div>
-
-      <label class="team-label">
-        Ваша команда
-      </label>
-
-      <select id="team">
-
-        <option value="">
-          Оберіть команду
-        </option>
-
-        <option value="ППФ">ППФ</option>
-        <option value="ПФ">ПФ</option>
-        <option value="ГФ">ГФ</option>
-        <option value="ФМФ">ФМФ</option>
-        <option value="ФМ">ФМ</option>
-        <option value="ФІМ">ФІМ</option>
-        <option value="ФПО">ФПО</option>
-
-      </select>
-
-      <input
-        id="code"
-        type="text"
-        inputmode="numeric"
-        maxlength="7"
-        autocomplete="off"
-        placeholder="_ _ _ _ _ _ _"
-      >
-
-      <button id="activateButton">
-        АКТИВУВАТИ КОД
-      </button>
-
-      <div class="footer">
-        Козацький квест
-      </div>
-
+    <div class="protocol">
+      ◈ ФІНАЛЬНИЙ ПРОТОКОЛ ◈
     </div>
 
-
-    <!-- =========================
-         ПЕРЕВІРКА
-    ========================== -->
-
-    <div id="checkingScreen" class="card hidden">
-
-      <div class="checking">
-
-        <div class="loader"></div>
-
-        <div class="checking-title">
-          ⟳ ПЕРЕВІРКА КОДУ…
-        </div>
-
-        <div class="progress">
-
-          <div
-            id="progressBar"
-            class="progress-bar">
-          </div>
-
-        </div>
-
-        <div
-          id="progressText"
-          class="progress-text">
-
-          █░░░░░░░░░░░░ 0%
-
-        </div>
-
-        <div
-          id="checkingMessage"
-          class="checking-message">
-
-          Аналіз фінального коду…
-
-        </div>
-
-      </div>
-
+    <div class="text">
+      Ви пройшли всі випробування.
     </div>
 
+    <div class="big-text">
+      7 випробувань.<br>
+      7 цифр.<br>
+      1 код.
+    </div>
 
-    <!-- =========================
-         РЕЗУЛЬТАТ
-    ========================== -->
+    <div class="code-description">
+      Введіть код, який ви зібрали.
+    </div>
 
-    <div id="resultScreen" class="card hidden">
+    <input
+      id="codeInput"
+      class="code-input"
+      type="tel"
+      inputmode="numeric"
+      maxlength="7"
+      autocomplete="off"
+      placeholder="_______"
+    >
 
-      <div
-        id="resultSymbol"
-        class="result-symbol">
-      </div>
+    <button
+      id="activateButton"
+      class="button"
+    >
+      АКТИВУВАТИ КОД
+    </button>
 
-      <div
-        id="resultTitle"
-        class="result-title">
-      </div>
+  </div>
 
-      <div
-        id="resultMessage"
-        class="result-message">
-      </div>
 
-      <div
-        id="timeBox"
-        class="time-box hidden">
+  <!-- ПЕРЕВІРКА -->
 
-        <div class="time-label">
-          ЧАС ФІНІШУ
-        </div>
+  <div class="card hidden" id="checkingScreen">
 
-        <div
-          id="finishTime"
-          class="time">
-        </div>
+    <div class="protocol">
+      ◈ ФІНАЛЬНИЙ ПРОТОКОЛ ◈
+    </div>
 
-      </div>
+    <div class="checking-title">
+      ПЕРЕВІРКА КОДУ…
+    </div>
 
-      <div
-        id="winner"
-        class="winner hidden">
+    <div class="loader">
+      <div class="loader-bar" id="loaderBar"></div>
+    </div>
 
-        ⚔ ВИ ПЕРШІ! ⚔
+    <div class="progress" id="progress">
+      ░░░░░░░░░░░░ 0%
+    </div>
 
-      </div>
-
-      <div
-        id="gift"
-        class="gift hidden">
-
-        ПОДАРУНОК ОЧІКУЄ НА ВАС
-
-      </div>
-
-      <button
-        id="retryButton"
-        class="retry hidden">
-
-        СПРОБУВАТИ ЩЕ РАЗ
-
-      </button>
-
+    <div
+      class="text"
+      id="checkingMessage"
+      style="margin-top:25px;"
+    >
+      Аналіз фінального коду…
     </div>
 
   </div>
 
 
-  <script>
+  <!-- РЕЗУЛЬТАТ -->
 
-    const API_URL =
-      "https://script.google.com/macros/s/AKfycbx_crjSExgQSenmb_RObkRnmbOt_8J7xZnD90jhXWiS_hMCWeKRq7bntrh2ksaqKEf69w/exec";
+  <div class="card hidden" id="resultScreen">
 
+    <div
+      class="result-symbol"
+      id="resultSymbol"
+    >
+      ◈
+    </div>
 
-    const startScreen =
-      document.getElementById("startScreen");
+    <div
+      class="result-title"
+      id="resultTitle"
+    >
+      КОД АКТИВОВАНО
+    </div>
 
-    const checkingScreen =
-      document.getElementById("checkingScreen");
+    <div
+      class="result-text"
+      id="resultText"
+    >
+      Ви успішно завершили козацький квест.
+    </div>
 
-    const resultScreen =
-      document.getElementById("resultScreen");
+    <button
+      class="button retry hidden"
+      id="retryButton"
+    >
+      СПРОБУВАТИ ЩЕ РАЗ
+    </button>
 
+  </div>
 
-    const teamInput =
-      document.getElementById("team");
+  <div class="footer">
+    ФІНАЛЬНА СТАНЦІЯ
+  </div>
 
-    const codeInput =
-      document.getElementById("code");
-
-    const activateButton =
-      document.getElementById("activateButton");
-
-
-    const progressBar =
-      document.getElementById("progressBar");
-
-    const progressText =
-      document.getElementById("progressText");
-
-    const checkingMessage =
-      document.getElementById("checkingMessage");
-
-
-    const resultSymbol =
-      document.getElementById("resultSymbol");
-
-    const resultTitle =
-      document.getElementById("resultTitle");
-
-    const resultMessage =
-      document.getElementById("resultMessage");
-
-    const timeBox =
-      document.getElementById("timeBox");
-
-    const finishTime =
-      document.getElementById("finishTime");
-
-    const winner =
-      document.getElementById("winner");
-
-    const gift =
-      document.getElementById("gift");
-
-    const retryButton =
-      document.getElementById("retryButton");
+</div>
 
 
-    /*
-      Дозволяємо вводити тільки цифри
-    */
+<script>
 
-    codeInput.addEventListener(
-      "input",
-      function() {
+const FINAL_CODE = "0110149";
 
-        this.value =
-          this.value
-            .replace(/\D/g, "")
-            .slice(0, 7);
+const startScreen =
+  document.getElementById("startScreen");
+
+const checkingScreen =
+  document.getElementById("checkingScreen");
+
+const resultScreen =
+  document.getElementById("resultScreen");
+
+const codeInput =
+  document.getElementById("codeInput");
+
+const activateButton =
+  document.getElementById("activateButton");
+
+const loaderBar =
+  document.getElementById("loaderBar");
+
+const progress =
+  document.getElementById("progress");
+
+const checkingMessage =
+  document.getElementById("checkingMessage");
+
+const resultSymbol =
+  document.getElementById("resultSymbol");
+
+const resultTitle =
+  document.getElementById("resultTitle");
+
+const resultText =
+  document.getElementById("resultText");
+
+const retryButton =
+  document.getElementById("retryButton");
+
+
+
+/* Тільки цифри */
+
+codeInput.addEventListener("input", function() {
+
+  this.value =
+    this.value
+      .replace(/\D/g, "")
+      .slice(0, 7);
+
+});
+
+
+
+/* Натискання кнопки */
+
+activateButton.addEventListener(
+  "click",
+  startVerification
+);
+
+
+
+/* Enter */
+
+codeInput.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Enter") {
+      startVerification();
+    }
+
+  }
+);
+
+
+
+function startVerification() {
+
+  const code =
+    codeInput.value;
+
+  if (code.length !== 7) {
+
+    alert(
+      "Введіть код із 7 цифр."
+    );
+
+    return;
+  }
+
+
+  startScreen.classList.add("hidden");
+
+  checkingScreen.classList.remove("hidden");
+
+  animateChecking();
+
+}
+
+
+
+function animateChecking() {
+
+  let value = 0;
+
+  const interval =
+    setInterval(function() {
+
+      value += 4;
+
+      if (value >= 100) {
+
+        value = 100;
+
+        clearInterval(interval);
+
+        loaderBar.style.width =
+          "100%";
+
+        progress.textContent =
+          "████████████ 100%";
+
+        checkingMessage.textContent =
+          "Формування вердикту…";
+
+        setTimeout(
+          checkCode,
+          500
+        );
+
+        return;
+      }
+
+
+      loaderBar.style.width =
+        value + "%";
+
+
+      const blocks =
+        Math.floor(value / 8);
+
+      const empty =
+        12 - blocks;
+
+
+      progress.textContent =
+        "█".repeat(blocks) +
+        "░".repeat(empty) +
+        " " +
+        value +
+        "%";
+
+
+      if (value < 35) {
+
+        checkingMessage.textContent =
+          "Аналіз фінального коду…";
+
+      } else if (value < 70) {
+
+        checkingMessage.textContent =
+          "Перевірка відповідності…";
+
+      } else {
+
+        checkingMessage.textContent =
+          "Формування вердикту…";
 
       }
+
+    }, 55);
+
+}
+
+
+
+function checkCode() {
+
+  const enteredCode =
+    codeInput.value;
+
+
+  checkingScreen.classList.add("hidden");
+
+  resultScreen.classList.remove("hidden");
+
+
+  if (enteredCode === FINAL_CODE) {
+
+    /* ПРАВИЛЬНИЙ КОД */
+
+    resultSymbol.textContent =
+      "⚔️";
+
+    resultTitle.textContent =
+      "КОД АКТИВОВАНО";
+
+    resultText.innerHTML =
+      "Ви успішно завершили<br>" +
+      "<strong>козацький квест!</strong><br><br>" +
+      "Вітаємо! Ви пройшли всі випробування.";
+
+    retryButton.classList.add(
+      "hidden"
     );
 
 
-    /*
-      Кнопка активації
-    */
+  } else {
 
-    activateButton.addEventListener(
-      "click",
-      startVerification
+    /* НЕПРАВИЛЬНИЙ КОД */
+
+    resultSymbol.textContent =
+      "×";
+
+    resultTitle.textContent =
+      "КОД НЕПРАВИЛЬНИЙ";
+
+    resultText.textContent =
+      "Перевірте 7 цифр, які ви зібрали під час випробувань.";
+
+    retryButton.classList.remove(
+      "hidden"
     );
 
+  }
 
-    /*
-      Початок перевірки
-    */
+}
 
-    async function startVerification() {
 
-      const team =
-        teamInput.value;
 
-      const code =
-        codeInput.value;
+/* Повторна спроба */
 
+retryButton.addEventListener(
+  "click",
+  function() {
 
-      if (!team) {
-
-        alert(
-          "Спочатку оберіть свою команду."
-        );
-
-        return;
-      }
-
-
-      if (code.length !== 7) {
-
-        alert(
-          "Введіть код із 7 цифр."
-        );
-
-        return;
-      }
-
-
-      startScreen.classList.add("hidden");
-
-      checkingScreen.classList.remove("hidden");
-
-
-      await animateProgress();
-
-
-      checkingMessage.textContent =
-        "Отримання вердикту…";
-
-
-      try {
-
-        await sendFinishRequest(
-          team,
-          code
-        );
-
-      }
-
-      catch (error) {
-
-        console.error(error);
-
-        showError();
-
-      }
-
-    }
-
-
-    /*
-      JSONP-запит до Apps Script
-    */
-
-    function sendFinishRequest(
-      team,
-      code
-    ) {
-
-      return new Promise(
-        (resolve, reject) => {
-
-          const callbackName =
-            "finishCallback_" +
-            Date.now();
-
-
-          let script;
-
-
-          window[callbackName] =
-            function(data) {
-
-              try {
-
-                showResult(data);
-
-                resolve(data);
-
-              }
-
-              finally {
-
-                delete window[
-                  callbackName
-                ];
-
-                if (script) {
-                  script.remove();
-                }
-
-              }
-
-            };
-
-
-          script =
-            document.createElement(
-              "script"
-            );
-
-
-          script.src =
-            API_URL +
-            "?action=finish" +
-            "&team=" +
-            encodeURIComponent(team) +
-            "&code=" +
-            encodeURIComponent(code) +
-            "&callback=" +
-            callbackName;
-
-
-          script.onerror =
-            function() {
-
-              delete window[
-                callbackName
-              ];
-
-              script.remove();
-
-              reject(
-                new Error(
-                  "Помилка зв'язку"
-                )
-              );
-
-            };
-
-
-          document.body.appendChild(
-            script
-          );
-
-        }
-      );
-
-    }
-
-
-    /*
-      Анімація прогресу
-    */
-
-    function animateProgress() {
-
-      return new Promise(
-        resolve => {
-
-          let progress = 0;
-
-
-          const interval =
-            setInterval(
-              () => {
-
-                progress += 4;
-
-
-                if (progress >= 100) {
-
-                  progress = 100;
-
-                  clearInterval(
-                    interval
-                  );
-
-
-                  setTimeout(
-                    resolve,
-                    350
-                  );
-
-                }
-
-
-                progressBar.style.width =
-                  progress + "%";
-
-
-                const blocks =
-                  Math.floor(
-                    progress / 8
-                  );
-
-
-                const empty =
-                  12 - blocks;
-
-
-                progressText.textContent =
-                  "█".repeat(blocks) +
-                  "░".repeat(empty) +
-                  " " +
-                  progress +
-                  "%";
-
-
-                if (progress < 35) {
-
-                  checkingMessage.textContent =
-                    "Аналіз фінального коду…";
-
-                }
-
-                else if (progress < 70) {
-
-                  checkingMessage.textContent =
-                    "Перевірка відповідності…";
-
-                }
-
-                else {
-
-                  checkingMessage.textContent =
-                    "Формування вердикту…";
-
-                }
-
-              },
-              55
-            );
-
-        }
-      );
-
-    }
-
-
-    /*
-      Показуємо результат
-    */
-
-    function showResult(data) {
-
-      checkingScreen.classList.add(
-        "hidden"
-      );
-
-      resultScreen.classList.remove(
-        "hidden"
-      );
-
-
-      /*
-        Очищаємо попередній стан
-      */
-
-      winner.classList.add("hidden");
-
-      gift.classList.add("hidden");
-
-      timeBox.classList.add("hidden");
-
-      retryButton.classList.add("hidden");
-
-
-      /*
-        НЕПРАВИЛЬНИЙ КОД
-      */
-
-      if (data.type === "wrong") {
-
-        resultSymbol.textContent =
-          "×";
-
-        resultTitle.textContent =
-          "КОД НЕПРАВИЛЬНИЙ";
-
-        resultMessage.textContent =
-          "Перевірте 7 цифр, які ви зібрали під час випробувань.";
-
-        retryButton.classList.remove(
-          "hidden"
-        );
-
-        return;
-
-      }
-
-
-      /*
-        ПЕРША КОМАНДА
-      */
-
-      if (data.type === "first") {
-
-        resultSymbol.textContent =
-          "🏆";
-
-        resultTitle.textContent =
-          "ВИ ПЕРШІ!";
-
-        resultMessage.textContent =
-          "Ваша команда першою активувала фінальний код.";
-
-        timeBox.classList.remove(
-          "hidden"
-        );
-
-        finishTime.textContent =
-          data.time;
-
-        winner.classList.remove(
-          "hidden"
-        );
-
-        gift.classList.remove(
-          "hidden"
-        );
-
-        return;
-
-      }
-
-
-      /*
-        ЗВИЧАЙНИЙ УСПІШНИЙ ФІНІШ
-      */
-
-      if (data.type === "success") {
-
-        resultSymbol.textContent =
-          "◈";
-
-        resultTitle.textContent =
-          "КОД АКТИВОВАНО";
-
-        resultMessage.textContent =
-          "Ви успішно завершили козацький квест.";
-
-        timeBox.classList.remove(
-          "hidden"
-        );
-
-        finishTime.textContent =
-          data.time;
-
-        return;
-
-      }
-
-
-      /*
-        КОМАНДА ВЖЕ ФІНІШУВАЛА
-      */
-
-      if (data.type === "already") {
-
-        resultSymbol.textContent =
-          "◈";
-
-        resultTitle.textContent =
-          "ФІНІШ УЖЕ ЗАФІКСОВАНО";
-
-        resultMessage.textContent =
-          "Ця команда вже активувала фінальний код.";
-
-        timeBox.classList.remove(
-          "hidden"
-        );
-
-        finishTime.textContent =
-          data.time;
-
-        return;
-
-      }
-
-
-      /*
-        КОМАНДУ НЕ ЗНАЙДЕНО
-      */
-
-      if (data.type === "error") {
-
-        resultSymbol.textContent =
-          "×";
-
-        resultTitle.textContent =
-          "ПОМИЛКА";
-
-        resultMessage.textContent =
-          data.message ||
-          "Команду не знайдено.";
-
-        retryButton.classList.remove(
-          "hidden"
-        );
-
-        return;
-
-      }
-
-
-      /*
-        Невідомий результат
-      */
-
-      resultSymbol.textContent =
-        "×";
-
-      resultTitle.textContent =
-        "ПОМИЛКА";
-
-      resultMessage.textContent =
-        data.message ||
-        "Сталася помилка. Спробуйте ще раз.";
-
-      retryButton.classList.remove(
-        "hidden"
-      );
-
-    }
-
-
-    /*
-      Помилка зв'язку
-    */
-
-    function showError() {
-
-      checkingScreen.classList.add(
-        "hidden"
-      );
-
-      resultScreen.classList.remove(
-        "hidden"
-      );
-
-
-      resultSymbol.textContent =
-        "×";
-
-      resultTitle.textContent =
-        "ПОМИЛКА ЗВ'ЯЗКУ";
-
-      resultMessage.textContent =
-        "Не вдалося отримати відповідь сервера. Перевірте підключення до інтернету та спробуйте ще раз.";
-
-      retryButton.classList.remove(
-        "hidden"
-      );
-
-    }
-
-
-    /*
-      Повторна спроба
-    */
-
-    retryButton.addEventListener(
-      "click",
-      function() {
-
-        location.reload();
-
-      }
+    resultScreen.classList.add(
+      "hidden"
     );
 
-  </script>
+    startScreen.classList.remove(
+      "hidden"
+    );
+
+    codeInput.value = "";
+
+    loaderBar.style.width =
+      "0%";
+
+    progress.textContent =
+      "░░░░░░░░░░░░ 0%";
+
+  }
+);
+
+</script>
 
 </body>
 </html>
