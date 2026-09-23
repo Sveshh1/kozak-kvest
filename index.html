@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Козацький квест</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #3d2b1f 0%, #17110d 45%, #0b0907 100%);
+      color: #f5ead8;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      padding: 25px 15px 20px;
+    }
+
+    .symbol {
+      font-size: 46px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: #cbb99f;
+      font-size: 14px;
+    }
+
+    .team-card {
+      background: rgba(255, 248, 235, 0.08);
+      border: 1px solid rgba(222, 183, 119, 0.35);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+    }
+
+    .team-label {
+      text-align: center;
+      color: #cbb99f;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+    }
+
+    .team-name {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      color: #e2b66d;
+      margin-bottom: 24px;
+    }
+
+    .stations {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .station {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 17px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .station-left {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .station-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2b2119;
+      color: #d9ae67;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .station-name {
+      font-size: 16px;
+    }
+
+    .points {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e2b66d;
+      min-width: 55px;
+      text-align: right;
+    }
+
+    .total {
+      margin-top: 22px;
+      padding: 20px;
+      border-radius: 18px;
+      background: linear-gradient(
+        135deg,
+        rgba(181, 132, 61, 0.25),
+        rgba(100, 67, 35, 0.25)
+      );
+      border: 1px solid rgba(222, 183, 119, 0.4);
+      text-align: center;
+    }
+
+    .total-label {
+      color: #cbb99f;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 5px;
+    }
+
+    .total-score {
+      font-size: 42px;
+      font-weight: 900;
+      color: #e8bd72;
+    }
+
+    .total-score span {
+      font-size: 22px;
+      color: #b8a994;
+    }
+
+    .updated {
+      text-align: center;
+      color: #8e806e;
+      font-size: 12px;
+      margin-top: 18px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 50px 20px;
+      color: #cbb99f;
+    }
+
+    .error {
+      text-align: center;
+      padding: 35px 20px;
+      color: #e58b7d;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 400px) {
+      body {
+        padding: 12px;
+      }
+
+      .title {
+        font-size: 24px;
+      }
+
+      .team-name {
+        font-size: 28px;
+      }
+
+      .team-card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="header">
+      <div class="symbol">⚔️</div>
+
+      <div class="title">
+        Козацький квест
+      </div>
+
+      <div class="subtitle">
+        День українського козацтва
+      </div>
+    </div>
+
+    <div id="content">
+      <div class="loading">
+        Завантаження результатів...
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+
+    // Адреса нашого Google Apps Script
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbx_crjSExgQSenmb_RObkRnmbOt_8J7xZnD90jhXWiS_hMCWeKRq7bntrh2ksaqKEf69w/exec";
+
+
+    // Отримуємо QR команди з адреси сторінки
+    // Наприклад: ?qr=QR01
+    const params = new URLSearchParams(window.location.search);
+    const qr = params.get("qr");
+
+
+    // Назви станцій
+    const stations = [
+      "Станція 1",
+      "Станція 2",
+      "Станція 3",
+      "Станція 4",
+      "Станція 5",
+      "Станція 6",
+      "Станція 7"
+    ];
+
+
+    // Завантаження даних
+    async function loadTeam() {
+
+      const content = document.getElementById("content");
+
+      if (!qr) {
+        content.innerHTML = `
+          <div class="error">
+            <h2>Команду не знайдено</h2>
+            <p>Відскануйте QR-код своєї команди.</p>
+          </div>
+        `;
+        return;
+      }
+
+
+      try {
+
+        const response = await fetch(
+          API_URL + "?qr=" + encodeURIComponent(qr)
+        );
+
+        const data = await response.json();
+
+
+        if (data.error) {
+          content.innerHTML = `
+            <div class="error">
+              <h2>Помилка</h2>
+              <p>${data.error}</p>
+            </div>
+          `;
+          return;
+        }
+
+
+        let stationsHTML = "";
+
+
+        stations.forEach((station, index) => {
+
+          const value = data.stations[station];
+
+          const displayValue =
+            value === "" || value === null || value === undefined
+              ? "—"
+              : value + " б.";
+
+          stationsHTML += `
+            <div class="station">
+
+              <div class="station-left">
+
+                <div class="station-number">
+                  ${index + 1}
+                </div>
+
+                <div class="station-name">
+                  ${station}
+                </div>
+
+              </div>
+
+              <div class="points">
+                ${displayValue}
+              </div>
+
+            </div>
+          `;
+
+        });
+
+
+        content.innerHTML = `
+
+          <div class="team-card">
+
+            <div class="team-label">
+              Ваша команда
+            </div>
+
+            <div class="team-name">
+              ${data.team}
+            </div>
+
+
+            <div class="stations">
+              ${stationsHTML}
+            </div>
+
+
+            <div class="total">
+
+              <div class="total-label">
+                Загальний результат
+              </div>
+
+              <div class="total-score">
+                ${data.total}
+                <span>/ 70</span>
+              </div>
+
+            </div>
+
+
+            <div class="updated">
+              Результати оновлюються автоматично
+            </div>
+
+          </div>
+
+        `;
+
+      }
+
+      catch (error) {
+
+        console.error(error);
+
+        content.innerHTML = `
+          <div class="error">
+            <h2>Не вдалося завантажити результати</h2>
+            <p>
+              Перевірте підключення до інтернету
+              та спробуйте оновити сторінку.
+            </p>
+          </div>
+        `;
+
+      }
+
+    }
+
+
+    // Перше завантаження
+    loadTeam();
+
+
+    // Автоматично перевіряємо нові результати
+    // кожні 15 секунд
+    setInterval(loadTeam, 15000);
+
+  </script>
+
+</body>
+</html>
