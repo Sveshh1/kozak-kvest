@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Фінальний протокол</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top,
+          #3d2b1f 0%,
+          #17110d 48%,
+          #090706 100%
+        );
+
+      color: #f5ead8;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .card {
+      background: rgba(255, 248, 235, 0.07);
+
+      border: 1px solid rgba(222, 183, 119, 0.35);
+
+      border-radius: 26px;
+
+      padding: 34px 24px;
+
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.45);
+
+      backdrop-filter: blur(10px);
+
+      text-align: center;
+    }
+
+    .symbol {
+      font-size: 42px;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 800;
+
+      letter-spacing: 2px;
+
+      color: #e2b66d;
+
+      margin-bottom: 28px;
+    }
+
+    .intro {
+      color: #d7c8b5;
+
+      font-size: 16px;
+
+      line-height: 1.65;
+
+      margin-bottom: 8px;
+    }
+
+    .formula {
+      margin-top: 18px;
+      margin-bottom: 28px;
+    }
+
+    .formula div {
+      font-size: 18px;
+
+      font-weight: 700;
+
+      color: #e8bd72;
+
+      margin: 5px 0;
+    }
+
+    .description {
+      color: #b8a994;
+
+      font-size: 14px;
+
+      margin-top: 18px;
+
+      margin-bottom: 25px;
+    }
+
+    .team-label {
+      display: block;
+
+      text-align: left;
+
+      font-size: 12px;
+
+      text-transform: uppercase;
+
+      letter-spacing: 2px;
+
+      color: #a99a88;
+
+      margin-bottom: 8px;
+    }
+
+    select,
+    input {
+      width: 100%;
+
+      border: 1px solid rgba(222, 183, 119, 0.35);
+
+      border-radius: 14px;
+
+      background: rgba(0, 0, 0, 0.25);
+
+      color: #f5ead8;
+
+      padding: 15px;
+
+      font-size: 17px;
+
+      outline: none;
+
+      margin-bottom: 18px;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: #e2b66d;
+    }
+
+    input {
+      text-align: center;
+
+      font-size: 26px;
+
+      letter-spacing: 9px;
+
+      font-weight: 700;
+    }
+
+    input::placeholder {
+      color: #706356;
+
+      letter-spacing: 8px;
+    }
+
+    button {
+      width: 100%;
+
+      border: none;
+
+      border-radius: 14px;
+
+      padding: 16px;
+
+      background: #b88642;
+
+      color: #17110d;
+
+      font-size: 15px;
+
+      font-weight: 900;
+
+      letter-spacing: 1px;
+
+      cursor: pointer;
+
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #d5a95f;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================
+       ПЕРЕВІРКА
+    ========================= */
+
+    .checking {
+      text-align: center;
+    }
+
+    .loader {
+      width: 64px;
+      height: 64px;
+
+      border-radius: 50%;
+
+      border: 4px solid rgba(222, 183, 119, 0.2);
+
+      border-top-color: #e2b66d;
+
+      animation:
+        spin 0.9s linear infinite;
+
+      margin: 0 auto 25px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .checking-title {
+      color: #e2b66d;
+
+      font-size: 20px;
+
+      font-weight: 800;
+
+      letter-spacing: 1px;
+
+      margin-bottom: 20px;
+    }
+
+    .progress {
+      width: 100%;
+
+      height: 16px;
+
+      border-radius: 20px;
+
+      background: rgba(255,255,255,0.08);
+
+      overflow: hidden;
+
+      border: 1px solid rgba(222,183,119,0.2);
+    }
+
+    .progress-bar {
+      width: 0%;
+
+      height: 100%;
+
+      background: #e2b66d;
+
+      transition:
+        width 0.15s linear;
+    }
+
+    .progress-text {
+      margin-top: 10px;
+
+      font-family: monospace;
+
+      color: #cbb99f;
+
+      font-size: 15px;
+
+      letter-spacing: 1px;
+    }
+
+    .checking-message {
+      margin-top: 18px;
+
+      color: #8e806e;
+
+      font-size: 13px;
+    }
+
+    /* =========================
+       РЕЗУЛЬТАТ
+    ========================= */
+
+    .result-symbol {
+      font-size: 55px;
+
+      margin-bottom: 20px;
+    }
+
+    .result-title {
+      font-size: 26px;
+
+      font-weight: 900;
+
+      color: #e2b66d;
+
+      letter-spacing: 1px;
+
+      margin-bottom: 18px;
+    }
+
+    .result-message {
+      color: #d7c8b5;
+
+      font-size: 16px;
+
+      line-height: 1.6;
+    }
+
+    .time-box {
+      margin-top: 28px;
+
+      padding: 20px;
+
+      border-radius: 18px;
+
+      background: rgba(0,0,0,0.22);
+
+      border: 1px solid rgba(222,183,119,0.2);
+    }
+
+    .time-label {
+      color: #9f9180;
+
+      font-size: 11px;
+
+      letter-spacing: 2px;
+
+      margin-bottom: 8px;
+    }
+
+    .time {
+      color: #e8bd72;
+
+      font-size: 34px;
+
+      font-weight: 900;
+
+      letter-spacing: 2px;
+    }
+
+    .winner {
+      margin-top: 30px;
+
+      padding: 18px;
+
+      border-radius: 16px;
+
+      background: rgba(184, 134, 66, 0.16);
+
+      border:
+        1px solid
+        rgba(222,183,119,0.4);
+
+      color: #e8bd72;
+
+      font-size: 21px;
+
+      font-weight: 900;
+    }
+
+    .gift {
+      margin-top: 15px;
+
+      color: #cbb99f;
+
+      font-size: 12px;
+
+      letter-spacing: 2px;
+    }
+
+    .retry {
+      margin-top: 28px;
+
+      background: transparent;
+
+      border:
+        1px solid
+        rgba(222,183,119,0.4);
+
+      color: #e2b66d;
+    }
+
+    .retry:hover {
+      background: rgba(222,183,119,0.08);
+    }
+
+    .footer {
+      margin-top: 22px;
+
+      color: #665b50;
+
+      font-size: 11px;
+
+      text-align: center;
+    }
+
+    @media (max-width: 400px) {
+
+      body {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 28px 18px;
+      }
+
+      .title {
+        font-size: 21px;
+      }
+
+      input {
+        font-size: 23px;
+      }
+
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <div class="container">
+
+    <!-- =========================
+         ПОЧАТКОВИЙ ЕКРАН
+    ========================== -->
+
+    <div id="startScreen" class="card">
+
+      <div class="symbol">
+        ⚔️
+      </div>
+
+      <div class="title">
+        ◈ ФІНАЛЬНИЙ ПРОТОКОЛ ◈
+      </div>
+
+
+      <div class="intro">
+        Ви пройшли всі випробування.
+      </div>
+
+
+      <div class="formula">
+
+        <div>
+          7 випробувань.
+        </div>
+
+        <div>
+          7 цифр.
+        </div>
+
+        <div>
+          1 код.
+        </div>
+
+      </div>
+
+
+      <div class="description">
+        Введіть код, який ви зібрали
+        під час проходження квесту.
+      </div>
+
+
+      <label class="team-label">
+        Ваша команда
+      </label>
+
+
+      <select id="team">
+
+        <option value="">
+          Оберіть команду
+        </option>
+
+        <option value="ППФ">
+          ППФ
+        </option>
+
+        <option value="ПФ">
+          ПФ
+        </option>
+
+        <option value="ГФ">
+          ГФ
+        </option>
+
+        <option value="ФМФ">
+          ФМФ
+        </option>
+
+        <option value="ФМ">
+          ФМ
+        </option>
+
+        <option value="ФІМ">
+          ФІМ
+        </option>
+
+        <option value="ФПО">
+          ФПО
+        </option>
+
+      </select>
+
+
+      <input
+        id="code"
+        type="text"
+        inputmode="numeric"
+        maxlength="7"
+        autocomplete="off"
+        placeholder="_ _ _ _ _ _ _"
+      >
+
+
+      <button id="activateButton">
+        АКТИВУВАТИ КОД
+      </button>
+
+
+      <div class="footer">
+        Козацький квест
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         ПЕРЕВІРКА
+    ========================== -->
+
+    <div id="checkingScreen" class="card hidden">
+
+      <div class="checking">
+
+        <div class="loader"></div>
+
+
+        <div class="checking-title">
+          ⟳ ПЕРЕВІРКА КОДУ…
+        </div>
+
+
+        <div class="progress">
+
+          <div
+            id="progressBar"
+            class="progress-bar">
+          </div>
+
+        </div>
+
+
+        <div
+          id="progressText"
+          class="progress-text">
+
+          █░░░░░░░░░░░░ 0%
+
+        </div>
+
+
+        <div
+          id="checkingMessage"
+          class="checking-message">
+
+          Аналіз фінального коду…
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         РЕЗУЛЬТАТ
+    ========================== -->
+
+    <div id="resultScreen" class="card hidden">
+
+      <div
+        id="resultSymbol"
+        class="result-symbol">
+      </div>
+
+
+      <div
+        id="resultTitle"
+        class="result-title">
+      </div>
+
+
+      <div
+        id="resultMessage"
+        class="result-message">
+      </div>
+
+
+      <div
+        id="timeBox"
+        class="time-box hidden">
+
+        <div class="time-label">
+          ЧАС ФІНІШУ
+        </div>
+
+        <div
+          id="finishTime"
+          class="time">
+        </div>
+
+      </div>
+
+
+      <div
+        id="winner"
+        class="winner hidden">
+
+        ⚔ ВИ ПЕРШІ! ⚔
+
+      </div>
+
+
+      <div
+        id="gift"
+        class="gift hidden">
+
+        ПОДАРУНОК ОЧІКУЄ НА ВАС
+
+      </div>
+
+
+      <button
+        id="retryButton"
+        class="retry hidden">
+
+        СПРОБУВАТИ ЩЕ РАЗ
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /*
+      URL твого Google Apps Script
+    */
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbx_crjSExgQSenmb_RObkRnmbOt_8J7xZnD90jhXWiS_hMCWeKRq7bntrh2ksaqKEf69w/exec";
+
+
+    const startScreen =
+      document.getElementById("startScreen");
+
+    const checkingScreen =
+      document.getElementById("checkingScreen");
+
+    const resultScreen =
+      document.getElementById("resultScreen");
+
+
+    const teamInput =
+      document.getElementById("team");
+
+    const codeInput =
+      document.getElementById("code");
+
+
+    const activateButton =
+      document.getElementById("activateButton");
+
+
+    const progressBar =
+      document.getElementById("progressBar");
+
+    const progressText =
+      document.getElementById("progressText");
+
+    const checkingMessage =
+      document.getElementById("checkingMessage");
+
+
+    const resultSymbol =
+      document.getElementById("resultSymbol");
+
+    const resultTitle =
+      document.getElementById("resultTitle");
+
+    const resultMessage =
+      document.getElementById("resultMessage");
+
+    const timeBox =
+      document.getElementById("timeBox");
+
+    const finishTime =
+      document.getElementById("finishTime");
+
+    const winner =
+      document.getElementById("winner");
+
+    const gift =
+      document.getElementById("gift");
+
+    const retryButton =
+      document.getElementById("retryButton");
+
+
+    /*
+      Дозволяємо вводити тільки цифри
+    */
+
+    codeInput.addEventListener(
+      "input",
+      function() {
+
+        this.value =
+          this.value
+            .replace(/\D/g, "")
+            .slice(0, 7);
+
+      }
+    );
+
+
+    /*
+      Натискання кнопки
+    */
+
+    activateButton.addEventListener(
+      "click",
+      startVerification
+    );
+
+
+    /*
+      Перевірка
+    */
+
+    async function startVerification() {
+
+      const team =
+        teamInput.value;
+
+      const code =
+        codeInput.value;
+
+
+      if (!team) {
+
+        alert("Спочатку оберіть свою команду.");
+
+        return;
+
+      }
+
+
+      if (code.length !== 7) {
+
+        alert("Введіть код із 7 цифр.");
+
+        return;
+
+      }
+
+
+      /*
+        Переходимо на екран перевірки
+      */
+
+      startScreen.classList.add("hidden");
+
+      checkingScreen.classList.remove("hidden");
+
+
+      /*
+        Запускаємо красиву анімацію
+      */
+
+      await animateProgress();
+
+
+      checkingMessage.textContent =
+        "Отримання вердикту…";
+
+
+      /*
+        Відправляємо запит Apps Script
+      */
+
+      try {
+
+        const url =
+          API_URL +
+          "?action=finish" +
+          "&team=" +
+          encodeURIComponent(team) +
+          "&code=" +
+          encodeURIComponent(code);
+
+
+        const response =
+          await fetch(url);
+
+
+        const html =
+          await response.text();
+
+
+        /*
+          Apps Script повертає HTML,
+          тому відкриваємо його окремо.
+
+          Це потрібно для першого етапу тестування.
+        */
+
+        document.open();
+
+        document.write(html);
+
+        document.close();
+
+
+      }
+
+      catch (error) {
+
+        showError();
+
+      }
+
+    }
+
+
+    /*
+      Анімація прогресу
+    */
+
+    function animateProgress() {
+
+      return new Promise(resolve => {
+
+        let progress = 0;
+
+
+        const interval =
+          setInterval(() => {
+
+            progress += 4;
+
+
+            if (progress >= 100) {
+
+              progress = 100;
+
+              clearInterval(interval);
+
+              setTimeout(
+                resolve,
+                350
+              );
+
+            }
+
+
+            progressBar.style.width =
+              progress + "%";
+
+
+            const blocks =
+              Math.floor(progress / 8);
+
+
+            const empty =
+              12 - blocks;
+
+
+            progressText.textContent =
+              "█".repeat(blocks) +
+              "░".repeat(empty) +
+              " " +
+              progress +
+              "%";
+
+
+            if (progress < 35) {
+
+              checkingMessage.textContent =
+                "Аналіз фінального коду…";
+
+            }
+
+            else if (progress < 70) {
+
+              checkingMessage.textContent =
+                "Перевірка відповідності…";
+
+            }
+
+            else {
+
+              checkingMessage.textContent =
+                "Формування вердикту…";
+
+            }
+
+          }, 55);
+
+      });
+
+    }
+
+
+    /*
+      Помилка зв'язку
+    */
+
+    function showError() {
+
+      checkingScreen.classList.add("hidden");
+
+      resultScreen.classList.remove("hidden");
+
+
+      resultSymbol.textContent =
+        "×";
+
+      resultTitle.textContent =
+        "ПОМИЛКА ЗВ'ЯЗКУ";
+
+      resultMessage.textContent =
+        "Не вдалося отримати відповідь сервера. Перевірте підключення до інтернету та спробуйте ще раз.";
+
+      retryButton.classList.remove("hidden");
+
+    }
+
+
+    /*
+      Кнопка повторної спроби
+    */
+
+    retryButton.addEventListener(
+      "click",
+      function() {
+
+        location.reload();
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
