@@ -447,11 +447,9 @@
         ◈ ФІНАЛЬНИЙ ПРОТОКОЛ ◈
       </div>
 
-
       <div class="intro">
         Ви пройшли всі випробування.
       </div>
-
 
       <div class="formula">
 
@@ -469,17 +467,14 @@
 
       </div>
 
-
       <div class="description">
         Введіть код, який ви зібрали
         під час проходження квесту.
       </div>
 
-
       <label class="team-label">
         Ваша команда
       </label>
-
 
       <select id="team">
 
@@ -487,36 +482,15 @@
           Оберіть команду
         </option>
 
-        <option value="ППФ">
-          ППФ
-        </option>
-
-        <option value="ПФ">
-          ПФ
-        </option>
-
-        <option value="ГФ">
-          ГФ
-        </option>
-
-        <option value="ФМФ">
-          ФМФ
-        </option>
-
-        <option value="ФМ">
-          ФМ
-        </option>
-
-        <option value="ФІМ">
-          ФІМ
-        </option>
-
-        <option value="ФПО">
-          ФПО
-        </option>
+        <option value="ППФ">ППФ</option>
+        <option value="ПФ">ПФ</option>
+        <option value="ГФ">ГФ</option>
+        <option value="ФМФ">ФМФ</option>
+        <option value="ФМ">ФМ</option>
+        <option value="ФІМ">ФІМ</option>
+        <option value="ФПО">ФПО</option>
 
       </select>
-
 
       <input
         id="code"
@@ -527,11 +501,9 @@
         placeholder="_ _ _ _ _ _ _"
       >
 
-
       <button id="activateButton">
         АКТИВУВАТИ КОД
       </button>
-
 
       <div class="footer">
         Козацький квест
@@ -550,11 +522,9 @@
 
         <div class="loader"></div>
 
-
         <div class="checking-title">
           ⟳ ПЕРЕВІРКА КОДУ…
         </div>
-
 
         <div class="progress">
 
@@ -565,7 +535,6 @@
 
         </div>
 
-
         <div
           id="progressText"
           class="progress-text">
@@ -573,7 +542,6 @@
           █░░░░░░░░░░░░ 0%
 
         </div>
-
 
         <div
           id="checkingMessage"
@@ -599,18 +567,15 @@
         class="result-symbol">
       </div>
 
-
       <div
         id="resultTitle"
         class="result-title">
       </div>
 
-
       <div
         id="resultMessage"
         class="result-message">
       </div>
-
 
       <div
         id="timeBox"
@@ -627,7 +592,6 @@
 
       </div>
 
-
       <div
         id="winner"
         class="winner hidden">
@@ -636,7 +600,6 @@
 
       </div>
 
-
       <div
         id="gift"
         class="gift hidden">
@@ -644,7 +607,6 @@
         ПОДАРУНОК ОЧІКУЄ НА ВАС
 
       </div>
-
 
       <button
         id="retryButton"
@@ -660,10 +622,6 @@
 
 
   <script>
-
-    /*
-      URL твого Google Apps Script
-    */
 
     const API_URL =
       "https://script.google.com/macros/s/AKfycbx_crjSExgQSenmb_RObkRnmbOt_8J7xZnD90jhXWiS_hMCWeKRq7bntrh2ksaqKEf69w/exec";
@@ -684,7 +642,6 @@
 
     const codeInput =
       document.getElementById("code");
-
 
     const activateButton =
       document.getElementById("activateButton");
@@ -743,7 +700,7 @@
 
 
     /*
-      Натискання кнопки
+      Кнопка активації
     */
 
     activateButton.addEventListener(
@@ -753,7 +710,7 @@
 
 
     /*
-      Перевірка
+      Початок перевірки
     */
 
     async function startVerification() {
@@ -767,34 +724,28 @@
 
       if (!team) {
 
-        alert("Спочатку оберіть свою команду.");
+        alert(
+          "Спочатку оберіть свою команду."
+        );
 
         return;
-
       }
 
 
       if (code.length !== 7) {
 
-        alert("Введіть код із 7 цифр.");
+        alert(
+          "Введіть код із 7 цифр."
+        );
 
         return;
-
       }
 
-
-      /*
-        Переходимо на екран перевірки
-      */
 
       startScreen.classList.add("hidden");
 
       checkingScreen.classList.remove("hidden");
 
-
-      /*
-        Запускаємо красиву анімацію
-      */
 
       await animateProgress();
 
@@ -803,50 +754,113 @@
         "Отримання вердикту…";
 
 
-      /*
-        Відправляємо запит Apps Script
-      */
-
       try {
 
-        const url =
-          API_URL +
-          "?action=finish" +
-          "&team=" +
-          encodeURIComponent(team) +
-          "&code=" +
-          encodeURIComponent(code);
-
-
-        const response =
-          await fetch(url);
-
-
-        const html =
-          await response.text();
-
-
-        /*
-          Apps Script повертає HTML,
-          тому відкриваємо його окремо.
-
-          Це потрібно для першого етапу тестування.
-        */
-
-        document.open();
-
-        document.write(html);
-
-        document.close();
-
+        await sendFinishRequest(
+          team,
+          code
+        );
 
       }
 
       catch (error) {
 
+        console.error(error);
+
         showError();
 
       }
+
+    }
+
+
+    /*
+      JSONP-запит до Apps Script
+    */
+
+    function sendFinishRequest(
+      team,
+      code
+    ) {
+
+      return new Promise(
+        (resolve, reject) => {
+
+          const callbackName =
+            "finishCallback_" +
+            Date.now();
+
+
+          let script;
+
+
+          window[callbackName] =
+            function(data) {
+
+              try {
+
+                showResult(data);
+
+                resolve(data);
+
+              }
+
+              finally {
+
+                delete window[
+                  callbackName
+                ];
+
+                if (script) {
+                  script.remove();
+                }
+
+              }
+
+            };
+
+
+          script =
+            document.createElement(
+              "script"
+            );
+
+
+          script.src =
+            API_URL +
+            "?action=finish" +
+            "&team=" +
+            encodeURIComponent(team) +
+            "&code=" +
+            encodeURIComponent(code) +
+            "&callback=" +
+            callbackName;
+
+
+          script.onerror =
+            function() {
+
+              delete window[
+                callbackName
+              ];
+
+              script.remove();
+
+              reject(
+                new Error(
+                  "Помилка зв'язку"
+                )
+              );
+
+            };
+
+
+          document.body.appendChild(
+            script
+          );
+
+        }
+      );
 
     }
 
@@ -857,75 +871,272 @@
 
     function animateProgress() {
 
-      return new Promise(resolve => {
+      return new Promise(
+        resolve => {
 
-        let progress = 0;
-
-
-        const interval =
-          setInterval(() => {
-
-            progress += 4;
+          let progress = 0;
 
 
-            if (progress >= 100) {
+          const interval =
+            setInterval(
+              () => {
 
-              progress = 100;
-
-              clearInterval(interval);
-
-              setTimeout(
-                resolve,
-                350
-              );
-
-            }
+                progress += 4;
 
 
-            progressBar.style.width =
-              progress + "%";
+                if (progress >= 100) {
+
+                  progress = 100;
+
+                  clearInterval(
+                    interval
+                  );
 
 
-            const blocks =
-              Math.floor(progress / 8);
+                  setTimeout(
+                    resolve,
+                    350
+                  );
+
+                }
 
 
-            const empty =
-              12 - blocks;
+                progressBar.style.width =
+                  progress + "%";
 
 
-            progressText.textContent =
-              "█".repeat(blocks) +
-              "░".repeat(empty) +
-              " " +
-              progress +
-              "%";
+                const blocks =
+                  Math.floor(
+                    progress / 8
+                  );
 
 
-            if (progress < 35) {
+                const empty =
+                  12 - blocks;
 
-              checkingMessage.textContent =
-                "Аналіз фінального коду…";
 
-            }
+                progressText.textContent =
+                  "█".repeat(blocks) +
+                  "░".repeat(empty) +
+                  " " +
+                  progress +
+                  "%";
 
-            else if (progress < 70) {
 
-              checkingMessage.textContent =
-                "Перевірка відповідності…";
+                if (progress < 35) {
 
-            }
+                  checkingMessage.textContent =
+                    "Аналіз фінального коду…";
 
-            else {
+                }
 
-              checkingMessage.textContent =
-                "Формування вердикту…";
+                else if (progress < 70) {
 
-            }
+                  checkingMessage.textContent =
+                    "Перевірка відповідності…";
 
-          }, 55);
+                }
 
-      });
+                else {
+
+                  checkingMessage.textContent =
+                    "Формування вердикту…";
+
+                }
+
+              },
+              55
+            );
+
+        }
+      );
+
+    }
+
+
+    /*
+      Показуємо результат
+    */
+
+    function showResult(data) {
+
+      checkingScreen.classList.add(
+        "hidden"
+      );
+
+      resultScreen.classList.remove(
+        "hidden"
+      );
+
+
+      /*
+        Очищаємо попередній стан
+      */
+
+      winner.classList.add("hidden");
+
+      gift.classList.add("hidden");
+
+      timeBox.classList.add("hidden");
+
+      retryButton.classList.add("hidden");
+
+
+      /*
+        НЕПРАВИЛЬНИЙ КОД
+      */
+
+      if (data.type === "wrong") {
+
+        resultSymbol.textContent =
+          "×";
+
+        resultTitle.textContent =
+          "КОД НЕПРАВИЛЬНИЙ";
+
+        resultMessage.textContent =
+          "Перевірте 7 цифр, які ви зібрали під час випробувань.";
+
+        retryButton.classList.remove(
+          "hidden"
+        );
+
+        return;
+
+      }
+
+
+      /*
+        ПЕРША КОМАНДА
+      */
+
+      if (data.type === "first") {
+
+        resultSymbol.textContent =
+          "🏆";
+
+        resultTitle.textContent =
+          "ВИ ПЕРШІ!";
+
+        resultMessage.textContent =
+          "Ваша команда першою активувала фінальний код.";
+
+        timeBox.classList.remove(
+          "hidden"
+        );
+
+        finishTime.textContent =
+          data.time;
+
+        winner.classList.remove(
+          "hidden"
+        );
+
+        gift.classList.remove(
+          "hidden"
+        );
+
+        return;
+
+      }
+
+
+      /*
+        ЗВИЧАЙНИЙ УСПІШНИЙ ФІНІШ
+      */
+
+      if (data.type === "success") {
+
+        resultSymbol.textContent =
+          "◈";
+
+        resultTitle.textContent =
+          "КОД АКТИВОВАНО";
+
+        resultMessage.textContent =
+          "Ви успішно завершили козацький квест.";
+
+        timeBox.classList.remove(
+          "hidden"
+        );
+
+        finishTime.textContent =
+          data.time;
+
+        return;
+
+      }
+
+
+      /*
+        КОМАНДА ВЖЕ ФІНІШУВАЛА
+      */
+
+      if (data.type === "already") {
+
+        resultSymbol.textContent =
+          "◈";
+
+        resultTitle.textContent =
+          "ФІНІШ УЖЕ ЗАФІКСОВАНО";
+
+        resultMessage.textContent =
+          "Ця команда вже активувала фінальний код.";
+
+        timeBox.classList.remove(
+          "hidden"
+        );
+
+        finishTime.textContent =
+          data.time;
+
+        return;
+
+      }
+
+
+      /*
+        КОМАНДУ НЕ ЗНАЙДЕНО
+      */
+
+      if (data.type === "error") {
+
+        resultSymbol.textContent =
+          "×";
+
+        resultTitle.textContent =
+          "ПОМИЛКА";
+
+        resultMessage.textContent =
+          data.message ||
+          "Команду не знайдено.";
+
+        retryButton.classList.remove(
+          "hidden"
+        );
+
+        return;
+
+      }
+
+
+      /*
+        Невідомий результат
+      */
+
+      resultSymbol.textContent =
+        "×";
+
+      resultTitle.textContent =
+        "ПОМИЛКА";
+
+      resultMessage.textContent =
+        data.message ||
+        "Сталася помилка. Спробуйте ще раз.";
+
+      retryButton.classList.remove(
+        "hidden"
+      );
 
     }
 
@@ -936,9 +1147,13 @@
 
     function showError() {
 
-      checkingScreen.classList.add("hidden");
+      checkingScreen.classList.add(
+        "hidden"
+      );
 
-      resultScreen.classList.remove("hidden");
+      resultScreen.classList.remove(
+        "hidden"
+      );
 
 
       resultSymbol.textContent =
@@ -950,13 +1165,15 @@
       resultMessage.textContent =
         "Не вдалося отримати відповідь сервера. Перевірте підключення до інтернету та спробуйте ще раз.";
 
-      retryButton.classList.remove("hidden");
+      retryButton.classList.remove(
+        "hidden"
+      );
 
     }
 
 
     /*
-      Кнопка повторної спроби
+      Повторна спроба
     */
 
     retryButton.addEventListener(
