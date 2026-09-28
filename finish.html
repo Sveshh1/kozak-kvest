@@ -487,17 +487,13 @@ h1 {
 
 
 <script>
-
-/* =========================================
-   ЄДИНИЙ ФІНАЛЬНИЙ КОД
-========================================= */
-
-const FINAL_CODE = "0110149";
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbx_crjSExgQSenmb_RObkRnmbOt_8J7xZnD90jhXWiS_hMCWeKRq7bntrh2ksaqKEf69w/exec";
 
 
-/* =========================================
-   ЕЛЕМЕНТИ
-========================================= */
+// =========================================
+// ЕЛЕМЕНТИ
+// =========================================
 
 const startScreen =
   document.getElementById("startScreen");
@@ -554,13 +550,13 @@ const retryButton =
   document.getElementById("retryButton");
 
 
-/* =========================================
-   ТІЛЬКИ ЦИФРИ В ПОЛІ КОДУ
-========================================= */
+// =========================================
+// ТІЛЬКИ ЦИФРИ В ПОЛІ КОДУ
+// =========================================
 
 codeInput.addEventListener(
   "input",
-  function() {
+  function () {
 
     this.value =
       this.value
@@ -571,9 +567,9 @@ codeInput.addEventListener(
 );
 
 
-/* =========================================
-   КНОПКА
-========================================= */
+// =========================================
+// КНОПКА
+// =========================================
 
 activateButton.addEventListener(
   "click",
@@ -581,9 +577,9 @@ activateButton.addEventListener(
 );
 
 
-/* =========================================
-   ПЕРЕВІРКА ПОЛІВ
-========================================= */
+// =========================================
+// ПЕРЕВІРКА ПОЛІВ
+// =========================================
 
 function startVerification() {
 
@@ -647,13 +643,12 @@ function startVerification() {
     code,
     time
   );
-
 }
 
 
-/* =========================================
-   АНІМАЦІЯ
-========================================= */
+// =========================================
+// АНІМАЦІЯ ПЕРЕВІРКИ
+// =========================================
 
 function animateChecking(
   team,
@@ -663,9 +658,14 @@ function animateChecking(
 
   let value = 0;
 
+  loaderBar.style.width = "0%";
+
+  progress.textContent =
+    "░░░░░░░░░░░░ 0%";
+
 
   const interval =
-    setInterval(function() {
+    setInterval(function () {
 
       value += 4;
 
@@ -686,9 +686,9 @@ function animateChecking(
           "Формування вердикту…";
 
 
-        setTimeout(function() {
+        setTimeout(function () {
 
-          checkCode(
+          sendToServer(
             team,
             code,
             time
@@ -737,15 +737,84 @@ function animateChecking(
       }
 
     }, 55);
-
 }
 
 
-/* =========================================
-   ПЕРЕВІРКА КОДУ
-========================================= */
+// =========================================
+// ВІДПРАВЛЕННЯ В GOOGLE APPS SCRIPT
+// =========================================
 
-function checkCode(
+function sendToServer(
+  team,
+  code,
+  time
+) {
+
+  const callbackName =
+    "finishCallback_" +
+    Date.now();
+
+
+  window[callbackName] =
+    function (result) {
+
+      delete window[callbackName];
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+      showResult(
+        result,
+        team,
+        code,
+        time
+      );
+    };
+
+
+  const script =
+    document.createElement("script");
+
+
+  const url =
+    API_URL +
+    "?action=finish" +
+    "&team=" +
+    encodeURIComponent(team) +
+    "&code=" +
+    encodeURIComponent(code) +
+    "&time=" +
+    encodeURIComponent(time) +
+    "&callback=" +
+    callbackName;
+
+
+  script.src = url;
+
+  script.onerror =
+    function () {
+
+      delete window[callbackName];
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+      showError();
+    };
+
+
+  document.body.appendChild(script);
+}
+
+
+// =========================================
+// ПОКАЗ РЕЗУЛЬТАТУ
+// =========================================
+
+function showResult(
+  result,
   team,
   code,
   time
@@ -760,13 +829,18 @@ function checkCode(
   );
 
 
-  if (code === FINAL_CODE) {
+  // =======================================
+  // ПРАВИЛЬНИЙ КОД
+  // =======================================
 
-
-    /* ПРАВИЛЬНИЙ КОД */
+  if (
+    result &&
+    result.type === "success"
+  ) {
 
     resultSymbol.textContent =
       "⚔️";
+
 
     resultTitle.textContent =
       "КВЕСТ ЗАВЕРШЕНО";
@@ -780,28 +854,40 @@ function checkCode(
     resultTeam.textContent =
       team;
 
+
     resultCode.textContent =
       code;
 
+
     resultTime.textContent =
       time;
+
 
     resultData.classList.remove(
       "hidden"
     );
 
+
     retryButton.classList.add(
       "hidden"
     );
 
+    return;
+  }
 
-  } else {
 
+  // =======================================
+  // НЕПРАВИЛЬНИЙ КОД
+  // =======================================
 
-    /* НЕПРАВИЛЬНИЙ КОД */
+  if (
+    result &&
+    result.type === "wrong"
+  ) {
 
     resultSymbol.textContent =
       "×";
+
 
     resultTitle.textContent =
       "КОД НЕПРАВИЛЬНИЙ";
@@ -820,18 +906,68 @@ function checkCode(
       "hidden"
     );
 
+    return;
   }
 
+
+  // =======================================
+  // ІНША ПОМИЛКА
+  // =======================================
+
+  showError(
+    result && result.message
+      ? result.message
+      : null
+  );
 }
 
 
-/* =========================================
-   ПОВТОРНА СПРОБА
-========================================= */
+// =========================================
+// ПОМИЛКА ЗВ'ЯЗКУ
+// =========================================
+
+function showError(message) {
+
+  checkingScreen.classList.add(
+    "hidden"
+  );
+
+  resultScreen.classList.remove(
+    "hidden"
+  );
+
+
+  resultSymbol.textContent =
+    "⚠️";
+
+
+  resultTitle.textContent =
+    "ПОМИЛКА";
+
+
+  resultText.textContent =
+    message ||
+    "Не вдалося зв'язатися із системою. Спробуйте ще раз.";
+
+
+  resultData.classList.add(
+    "hidden"
+  );
+
+
+  retryButton.classList.remove(
+    "hidden"
+  );
+}
+
+
+// =========================================
+// ПОВТОРНА СПРОБА
+// =========================================
 
 retryButton.addEventListener(
   "click",
-  function() {
+  function () {
 
     resultScreen.classList.add(
       "hidden"
@@ -855,7 +991,6 @@ retryButton.addEventListener(
 
   }
 );
-
 </script>
 
 </body>
